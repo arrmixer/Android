@@ -28,12 +28,4 @@ public class Question {
     public void setAnswerTrue(boolean answerTrue) {
         mAnswerTrue = answerTrue;
     }
-
-    @Override
-    public String toString() {
-        return "Question{" +
-                "mTextResId=" + mTextResId +
-                ", mAnswerTrue=" + mAnswerTrue +
-                '}';
-    }
 }
