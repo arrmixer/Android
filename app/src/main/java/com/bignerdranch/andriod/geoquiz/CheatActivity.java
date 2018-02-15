@@ -44,7 +44,7 @@ public class CheatActivity extends AppCompatActivity {
 
     }
 
-    
+
 
     private void setExtraAnswerShown(boolean isAnswerShown){
         Intent data = new Intent();
