@@ -15,7 +15,7 @@ public class QuizActivity extends AppCompatActivity {
     private static final String TAG = QuizActivity.class.getSimpleName();
     private static final String KEY_INDEX = "index";
     private static final String EXTRA_ANSWER_IS_TRUE = "com.bignerdranch.android.geoquiz.answer_is_true";
-    private static final String EXTRA_ANSWER_SHOWN = "com.bignerdranch.android.answer_shown";
+    private static final String EXTRA_ANSWER_SHOWN = "com.bignerdranch.android.geoquiz.answer_shown";
     private int REQUEST_CHEAT_CODE = 0;
 
     private Button mTrueButton;
@@ -36,11 +36,14 @@ public class QuizActivity extends AppCompatActivity {
 
     private int mCurrentIndex = 0;
     private boolean mIsCheater;
+    private boolean mIsStillCheater;
 
     @Override
     protected void onStart() {
         super.onStart();
         Log.d(TAG, "onStart: called");
+        Intent intent = getIntent();
+        Log.d(TAG, "onStart: Boolean " + mIsCheater);
     }
 
     @Override
@@ -48,6 +51,7 @@ public class QuizActivity extends AppCompatActivity {
         super.onResume();
 
         Log.d(TAG, "onResume: called");
+        Log.d(TAG, "onResume: Boolean " + mIsCheater);
     }
 
     @Override
@@ -61,6 +65,10 @@ public class QuizActivity extends AppCompatActivity {
         super.onSaveInstanceState(savedInstanceState);
         Log.i(TAG, "onSaveInstanceState");
         savedInstanceState.putInt(KEY_INDEX, mCurrentIndex);
+        savedInstanceState.putBoolean(EXTRA_ANSWER_SHOWN, mIsCheater);
+        Log.d(TAG, "onSaveInstanceState: Boolean " + mIsCheater);
+
+
 
     }
 
@@ -91,7 +99,9 @@ public class QuizActivity extends AppCompatActivity {
 
         if (savedInstanceState != null) {
             mCurrentIndex = savedInstanceState.getInt(KEY_INDEX, 0);
+            mIsCheater = savedInstanceState.getBoolean(EXTRA_ANSWER_SHOWN);
         }
+
 
         mQuestionTextView = (TextView) findViewById(R.id.question_text_view);
         updateQuestion();
@@ -131,8 +141,9 @@ public class QuizActivity extends AppCompatActivity {
                                             public void onClick(View v) {
                     boolean isAnswerTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
                     Context context = QuizActivity.this;
+                    Intent cheatIntent = newIntent(context, isAnswerTrue );
 
-                    startActivityForResult(newIntent(context, isAnswerTrue ), REQUEST_CHEAT_CODE);
+                    startActivityForResult(cheatIntent, REQUEST_CHEAT_CODE);
 
 
                                             }
@@ -146,12 +157,13 @@ public class QuizActivity extends AppCompatActivity {
         if(resultCode != Activity.RESULT_OK){
             return;
         }
-
+        Log.d(TAG, "onActivityResult: Intent Data is " +  data);
         if(requestCode == REQUEST_CHEAT_CODE){
             if (data == null){
                 return;
             }
             mIsCheater = CheatActivity.wasAnswerShown(data);
+//            mIsStillCheater = mIsCheater;
         }
     }
 

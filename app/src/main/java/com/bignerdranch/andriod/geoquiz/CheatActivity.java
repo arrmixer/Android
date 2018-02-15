@@ -3,16 +3,20 @@ package com.bignerdranch.andriod.geoquiz;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
 public class CheatActivity extends AppCompatActivity {
+    private final String TAG = CheatActivity.class.getSimpleName();
     private Button mShowAnswerButton;
     private TextView mTextAnswer;
     private boolean mAnswerIsTrue;
     private static final String EXTRA_ANSWER_IS_TRUE = "com.bignerdranch.android.geoquiz.answer_is_true";
-    private static final String EXTRA_ANSWER_SHOWN = "com.bignerdranch.android.answer_shown";
+    private static final String EXTRA_ANSWER_SHOWN = "com.bignerdranch.android.geoquiz.answer_shown";
+    private static final String KEY = "KEY";
+    private boolean mBoolean = false;
 
 
     public static boolean wasAnswerShown(Intent result){
@@ -25,9 +29,13 @@ public class CheatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_cheat);
 
         mAnswerIsTrue = getIntent().getBooleanExtra(EXTRA_ANSWER_IS_TRUE, false);
-
         mShowAnswerButton = (Button) findViewById(R.id.show_answer_button);
         mTextAnswer = (TextView) findViewById(R.id.answer_text_view);
+
+        if(savedInstanceState != null){
+            mBoolean = savedInstanceState.getBoolean(KEY);
+            Log.d(TAG, "onCreate: mBoolean " + mBoolean);
+        }
         mShowAnswerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -44,11 +52,26 @@ public class CheatActivity extends AppCompatActivity {
 
     }
 
-    
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.d(TAG, "onSaveInstanceState: " + mBoolean);
+        outState.putBoolean(KEY, mBoolean);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setExtraAnswerShown(mBoolean);
+        Log.d(TAG, "onPostResume: mBoolean " + mBoolean );
+
+    }
 
     private void setExtraAnswerShown(boolean isAnswerShown){
         Intent data = new Intent();
         data.putExtra(EXTRA_ANSWER_SHOWN, isAnswerShown);
         setResult(RESULT_OK, data);
+        mBoolean = isAnswerShown;
+
     }
 }
