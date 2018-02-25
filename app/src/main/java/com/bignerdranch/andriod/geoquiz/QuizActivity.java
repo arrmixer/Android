@@ -16,6 +16,7 @@ public class QuizActivity extends AppCompatActivity {
     private static final String KEY_INDEX = "index";
     private static final String EXTRA_ANSWER_IS_TRUE = "com.bignerdranch.android.geoquiz.answer_is_true";
     private static final String EXTRA_ANSWER_SHOWN = "com.bignerdranch.android.geoquiz.answer_shown";
+    private static final String EXTRA_CHEAT_USED = "com.bignerdranch.android.geoquiz.cheat_used";
     private int REQUEST_CHEAT_CODE = 0;
 
     private Button mTrueButton;
@@ -23,6 +24,7 @@ public class QuizActivity extends AppCompatActivity {
     private Button mNextButton;
     private Button mCheatButton;
     private TextView mQuestionTextView;
+    private TextView mAmountOfCheatsUsed;
 
     //array of question objects from values folder
     private Question[] mQuestionBank = new Question[]{
@@ -36,14 +38,23 @@ public class QuizActivity extends AppCompatActivity {
 
     private int mCurrentIndex = 0;
     private boolean mIsCheater;
-    private boolean mIsStillCheater;
+
+    // used to pass with intent
+    private int cheat = 0;
+
+    //will use to keep track of amount of cheats
+    private int totalCheats = 0;
+
 
     @Override
     protected void onStart() {
         super.onStart();
+        calculateCheats(cheat);
+
         Log.d(TAG, "onStart: called");
-        Intent intent = getIntent();
+
         Log.d(TAG, "onStart: Boolean " + mIsCheater);
+        Log.d(TAG, "onStart: Cheats " + totalCheats);
     }
 
     @Override
@@ -52,6 +63,8 @@ public class QuizActivity extends AppCompatActivity {
 
         Log.d(TAG, "onResume: called");
         Log.d(TAG, "onResume: Boolean " + mIsCheater);
+        Log.d(TAG, "onResume: TotalCheats " + totalCheats);
+
     }
 
     @Override
@@ -66,8 +79,9 @@ public class QuizActivity extends AppCompatActivity {
         Log.i(TAG, "onSaveInstanceState");
         savedInstanceState.putInt(KEY_INDEX, mCurrentIndex);
         savedInstanceState.putBoolean(EXTRA_ANSWER_SHOWN, mIsCheater);
+        savedInstanceState.putInt(EXTRA_CHEAT_USED, totalCheats);
         Log.d(TAG, "onSaveInstanceState: Boolean " + mIsCheater);
-
+        Log.d(TAG, "onSaveInstanceState: TotatlCheats " + totalCheats);
 
 
     }
@@ -84,9 +98,11 @@ public class QuizActivity extends AppCompatActivity {
         Log.d(TAG, "onDestroy: called");
     }
 
-    public static Intent newIntent(Context packageContext, boolean answerIsTrue){
+    public static Intent newIntent(Context packageContext, boolean answerIsTrue) {
         Intent intent = new Intent(packageContext, CheatActivity.class);
         intent.putExtra(EXTRA_ANSWER_IS_TRUE, answerIsTrue);
+
+
         return intent;
     }
 
@@ -97,25 +113,38 @@ public class QuizActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate(Bundle) called ");
         setContentView(R.layout.activity_quiz);
 
-        if (savedInstanceState != null) {
-            mCurrentIndex = savedInstanceState.getInt(KEY_INDEX, 0);
-            mIsCheater = savedInstanceState.getBoolean(EXTRA_ANSWER_SHOWN);
-        }
+        //buttons
+        mCheatButton = (Button) findViewById(R.id.cheat_button);
+        mNextButton = (Button) findViewById(R.id.next_button);
+        mTrueButton = (Button) findViewById(R.id.true_button);
+        mFalseButton = (Button) findViewById(R.id.false_button);
 
-
+        //textview
+        mAmountOfCheatsUsed = (TextView) findViewById(R.id.amount_of_cheats);
         mQuestionTextView = (TextView) findViewById(R.id.question_text_view);
         updateQuestion();
 
+        if (savedInstanceState != null) {
+            mCurrentIndex = savedInstanceState.getInt(KEY_INDEX, 0);
+            mIsCheater = savedInstanceState.getBoolean(EXTRA_ANSWER_SHOWN);
+            totalCheats = savedInstanceState.getInt(EXTRA_CHEAT_USED, 0);
+            mCheatButton.setEnabled(false);
+            if (totalCheats == 0) {
+                mCheatButton.setEnabled(true);
+            }
+        }
 
-        mTrueButton = (Button) findViewById(R.id.true_button);
+        //click listeners
+
         mTrueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // install Toast statement
                 checkAnswer(true);
+
             }
         });
-        mFalseButton = (Button) findViewById(R.id.false_button);
+
         mFalseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -125,25 +154,31 @@ public class QuizActivity extends AppCompatActivity {
             }
         });
 
-        mNextButton = (Button) findViewById(R.id.next_button);
+
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
                 mIsCheater = false;
                 updateQuestion();
+                mCheatButton.setEnabled(true);
+                if (totalCheats >= 3) {
+                    mCheatButton.setEnabled(false);
+                    mAmountOfCheatsUsed.setText("Only 3 cheats allowed");
+                }
             }
         });
 
-        mCheatButton = (Button) findViewById(R.id.cheat_button);
+
         mCheatButton.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
-                    boolean isAnswerTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
-                    Context context = QuizActivity.this;
-                    Intent cheatIntent = newIntent(context, isAnswerTrue );
+                                                boolean isAnswerTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
 
-                    startActivityForResult(cheatIntent, REQUEST_CHEAT_CODE);
+                                                Context context = QuizActivity.this;
+                                                Intent cheatIntent = newIntent(context, isAnswerTrue);
+
+                                                startActivityForResult(cheatIntent, REQUEST_CHEAT_CODE);
 
 
                                             }
@@ -154,16 +189,20 @@ public class QuizActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(resultCode != Activity.RESULT_OK){
+        if (resultCode != Activity.RESULT_OK) {
             return;
         }
-        Log.d(TAG, "onActivityResult: Intent Data is " +  data);
-        if(requestCode == REQUEST_CHEAT_CODE){
-            if (data == null){
+        Log.d(TAG, "onActivityResult: Intent Data is " + data.getBooleanExtra(EXTRA_ANSWER_SHOWN, mIsCheater));
+        Log.d(TAG, "onActivityResult: Intent Data is " + data.getIntExtra(EXTRA_CHEAT_USED, cheat));
+        if (requestCode == REQUEST_CHEAT_CODE) {
+            if (data == null) {
                 return;
             }
             mIsCheater = CheatActivity.wasAnswerShown(data);
-//            mIsStillCheater = mIsCheater;
+            cheat = CheatActivity.amountOfCheatsIntent(data);
+            mCheatButton.setEnabled(false);
+
+
         }
     }
 
@@ -174,11 +213,11 @@ public class QuizActivity extends AppCompatActivity {
 
     private void checkAnswer(boolean userPressedTrue) {
         boolean answerIsTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
-
         int messageResId = 0;
-        if(mIsCheater){
+        if (mIsCheater) {
+            mAmountOfCheatsUsed.setText("Cheats: " + totalCheats);
             messageResId = R.string.judgement_toast;
-        }else {
+        } else {
             if (userPressedTrue == answerIsTrue) {
                 messageResId = R.string.correct_toast;
             } else {
@@ -191,6 +230,10 @@ public class QuizActivity extends AppCompatActivity {
 
     }
 
+    private int calculateCheats(int cheat) {
+        totalCheats += cheat;
+        return totalCheats;
+    }
 
 
 }

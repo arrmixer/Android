@@ -16,11 +16,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".CheatActivity"
-            android:parentActivityName=".QuizActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".QuizActivity" />
+        <activity android:name=".CheatActivity">
+
         </activity>
     </application>
 
