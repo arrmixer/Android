@@ -1,2 +1,2 @@
 # Android
-This is just a play pen for me to apply my Java skills within the world of Android. Currently I'm using the book from Big Nerd Ranch. 
+This is just a play pen for me to apply my Java skills within the world of Android. Currently I'm using the book from Big Nerd Ranch. The challenge for Chapter six was to add a counter for the cheats and disable the cheat button. I enabled the home button to the action bar to keep the same instance of the QuizActivity.I also made sure the counter did not reset if the user rotated the screen using the saveInstanceState Bundle object.  
