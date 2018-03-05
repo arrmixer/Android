@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.bignerdranch.andriod.geoquiz">
+    package="com.example.andriod.criminalintent">
 
     <application
         android:allowBackup="true"
@@ -9,18 +9,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".QuizActivity">
+        <activity android:name=".CrimeListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".CheatActivity"
-            android:parentActivityName=".QuizActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".QuizActivity" />
+        <activity android:name=".CrimeActivity">
+
         </activity>
     </application>
 

@@ -1,4 +1,4 @@
-package com.bignerdranch.andriod.geoquiz;
+package com.example.andriod.criminalintent;
 
 import org.junit.Test;
 
