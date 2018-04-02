@@ -23,6 +23,10 @@ public class CrimeListFragment extends Fragment {
     private CrimeAdapter mAdapter;
 
 
+    private static final int POLICE_REQUIRED = 1;
+    private static final int POLICE_NOT_REQUIRED = 0;
+
+
 
     @Nullable
     @Override
@@ -46,6 +50,7 @@ public class CrimeListFragment extends Fragment {
 
         mAdapter = new CrimeAdapter(crimes);
         mCrimeRecyclerView.setAdapter(mAdapter);
+
     }
 
     private class CrimeHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
@@ -55,8 +60,9 @@ public class CrimeListFragment extends Fragment {
         private Crime mCrime;
 
 
-        public CrimeHolder(LayoutInflater inflater, ViewGroup parent) {
-            super(inflater.inflate(R.layout.list_item_crime, parent, false));
+        public CrimeHolder(View view) {
+            super(view);
+
             itemView.setOnClickListener(this);
 
             mTitleTextView = itemView.findViewById(R.id.crime_title);
@@ -74,6 +80,8 @@ public class CrimeListFragment extends Fragment {
         public void onClick(View v) {
             Toast.makeText(getActivity(), mCrime.getTitle() + " clicked!", Toast.LENGTH_SHORT).show();
         }
+
+
     }
 
     private class CrimeAdapter extends RecyclerView.Adapter<CrimeHolder>{
@@ -81,25 +89,55 @@ public class CrimeListFragment extends Fragment {
         private List<Crime> mCrimes;
 
         public CrimeAdapter(List<Crime> crimes){
+
             mCrimes = crimes;
         }
 
 
         @Override
         public CrimeHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            LayoutInflater inflater = LayoutInflater.from(getActivity());
-            return new CrimeHolder(inflater, parent);
+
+            int layOutId;
+
+
+            switch (viewType){
+                case POLICE_REQUIRED:
+                    layOutId = R.layout.contact_police;
+                    break;
+                case POLICE_NOT_REQUIRED:
+                    layOutId = R.layout.list_item_crime;
+                    break;
+
+                default:
+                    throw new IllegalArgumentException("Invalid view type, value of " + viewType);
+            }
+           View view = LayoutInflater.from(getActivity()).inflate(layOutId, parent, false);
+
+            return new CrimeHolder(view);
         }
 
         @Override
         public void onBindViewHolder(CrimeHolder holder, int position) {
             Crime crime = mCrimes.get(position);
+
             holder.bind(crime);
         }
 
         @Override
         public int getItemCount() {
             return mCrimes.size();
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+
+            if(mCrimes.get(position).isRequirePolice()){
+                return POLICE_REQUIRED;
+            }else{
+                return POLICE_NOT_REQUIRED;
+            }
+
+
         }
     }
 }
