@@ -1,6 +1,7 @@
 package com.bignerdranch.andriod.beatbox;
 
 import android.databinding.DataBindingUtil;
+import android.databinding.adapters.SeekBarBindingAdapter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -74,7 +75,7 @@ public class BeatBoxFragment extends Fragment {
 
     }
 
-    private class SoundAdapter extends RecyclerView.Adapter<SoundHolder>{
+    private class SoundAdapter extends RecyclerView.Adapter<SoundHolder> {
 
         //placeholder for the list of sounds from BeatBox
         private List<Sound> mSounds;
@@ -95,6 +96,8 @@ public class BeatBoxFragment extends Fragment {
             Sound sound = mSounds.get(position);
             holder.bind(sound);
         }
+
+
 
         @Override
         public int getItemCount() {
