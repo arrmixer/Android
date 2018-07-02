@@ -1,7 +1,8 @@
 # Android
 Android Development Big Nerd Ranch
-This repository is the cumulation of all the projects and challenges within the Big Nerd Ranch Android Development book.
-I branched out all the chapters and projects as neat as possible. The Master branch has the last app from the book called Loctr. Though the book did mentioned Third party libraries such as GSON, Picasso, and Glide, this book did all it's function natively within the Android/Java libraries. 
+
+This repository is the accumulation of all the projects and challenges within the Big Nerd Ranch Android Development book.
+I branched out all the chapters and projects as neat as possible. The Master branch has the last app from the book called Loctr. Though the book did mentioned Third party libraries such as GSON, Picasso, and Glide, this book did all it's functions/tasks natively within the Android/Java libraries. 
 
 Here is a summary of the projects:
 
