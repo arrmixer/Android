@@ -1,4 +1,4 @@
-package com.bignerdranch.andriod.locatr;
+package com.bignerdranch.andriod.photogallery;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.bignerdranch.andriod.locatr", appContext.getPackageName());
+        assertEquals("com.bignerdranch.andriod.photogallery", appContext.getPackageName());
     }
 }

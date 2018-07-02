@@ -1,4 +1,4 @@
-package com.bignerdranch.andriod.locatr;
+package com.bignerdranch.andriod.photogallery;
 
 import android.net.Uri;
 
@@ -7,10 +7,6 @@ public class GalleryItem {
     private String mId;
     private String mUrl;
     private String mOwner;
-
-    //added more fields to ultilize map api
-    private double mLat;
-    private double mLon;
 
     public String getCaption() {
         return mCaption;
@@ -44,28 +40,15 @@ public class GalleryItem {
         mOwner = owner;
     }
 
+    //create Uri based on Flickr Documentation
+    //use the base URL https://www.flickr.com/photos/user-id/photo-id
+    //to get photo's webpage
     public Uri getPhotoPageUri() {
-        return Uri.parse("http://www.flickr.com/photos/")
+        return Uri.parse("https://www.flickr.com/photos/")
                 .buildUpon()
                 .appendPath(mOwner)
                 .appendPath(mId)
                 .build();
-    }
-
-    public double getLat() {
-        return mLat;
-    }
-
-    public void setLat(double lat) {
-        mLat = lat;
-    }
-
-    public double getLon() {
-        return mLon;
-    }
-
-    public void setLon(double lon) {
-        mLon = lon;
     }
 
     @Override

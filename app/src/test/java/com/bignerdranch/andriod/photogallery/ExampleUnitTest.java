@@ -1,4 +1,4 @@
-package com.bignerdranch.andriod.locatr;
+package com.bignerdranch.andriod.photogallery;
 
 import org.junit.Test;
 

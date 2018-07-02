@@ -1,6 +1,5 @@
-package com.bignerdranch.andriod.locatr;
+package com.bignerdranch.andriod.photogallery;
 
-import android.location.Location;
 import android.net.Uri;
 import android.util.Log;
 
@@ -17,36 +16,47 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FlickrFetchr {
+
     private static final String TAG = "FlickrFetchr";
 
-    private static final String API_KEY = "3fc30f5a6ff88d019514dcbdda3b89aa";
+    //API constants
+    private static final String API_KEY = "place your key here";
     private static final String FETCH_RECENTS_METHOD = "flickr.photos.getRecent";
     private static final String SEARCH_METHOD = "flickr.photos.search";
+
+    //API URI
     private static final Uri ENDPOINT = Uri
             .parse("https://api.flickr.com/services/rest/")
             .buildUpon()
+            .appendQueryParameter("method", "flickr.photos.getRecent")
             .appendQueryParameter("api_key", API_KEY)
             .appendQueryParameter("format", "json")
             .appendQueryParameter("nojsoncallback", "1")
-            .appendQueryParameter("extras", "url_s,geo") //added extra parameter to get lat-lon
+            .appendQueryParameter("extras", "url_s")
             .build();
+
 
     public byte[] getUrlBytes(String urlSpec) throws IOException {
         URL url = new URL(urlSpec);
-        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             InputStream in = connection.getInputStream();
+
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                throw new IOException(connection.getResponseMessage() +
-                        ": with " +
+                throw new IOException(connection.getResponseMessage()
+                        + ": with " +
                         urlSpec);
             }
+
             int bytesRead = 0;
             byte[] buffer = new byte[1024];
+
             while ((bytesRead = in.read(buffer)) > 0) {
                 out.write(buffer, 0, bytesRead);
             }
+
             out.close();
             return out.toByteArray();
         } finally {
@@ -68,21 +78,19 @@ public class FlickrFetchr {
         return downloadGalleryItems(url);
     }
 
-    public List<GalleryItem> searchPhotos(Location location) {
-        String url = buildUrl(location);
-        return downloadGalleryItems(url);
-    }
-
     private List<GalleryItem> downloadGalleryItems(String url) {
-        List<GalleryItem> items = new ArrayList<>();
 
+        List<GalleryItem> items = new ArrayList<>();
         try {
+
+
             String jsonString = getUrlString(url);
-            Log.i(TAG, "Received JSON: " + jsonString);
+            Log.i(TAG, "Recieved JSON: " + jsonString);
+
             JSONObject jsonBody = new JSONObject(jsonString);
             parseItems(items, jsonBody);
         } catch (IOException ioe) {
-            Log.e(TAG, "Failed to fetch items", ioe);
+            Log.e(TAG, "Failed to fetch items: -----------------", ioe);
         } catch (JSONException je) {
             Log.e(TAG, "Failed to parse JSON", je);
         }
@@ -101,39 +109,30 @@ public class FlickrFetchr {
         return uriBuilder.build().toString();
     }
 
-    private String buildUrl(Location location){
-        return ENDPOINT.buildUpon()
-                .appendQueryParameter("method", SEARCH_METHOD)
-                .appendQueryParameter("lat", Double.toString(location.getLatitude()))
-                .appendQueryParameter("lon", Double.toString(location.getLongitude()))
-                .build().toString();
 
-    }
+    private void parseItems(List<GalleryItem> items, JSONObject jsonBody) throws IOException, JSONException {
 
+        //get photo object from JSON "photos"
+        JSONObject photosJSONObject = jsonBody.getJSONObject("photos");
 
-    private void parseItems(List<GalleryItem> items, JSONObject jsonBody)
-            throws IOException, JSONException {
-
-        JSONObject photosJsonObject = jsonBody.getJSONObject("photos");
-        JSONArray photoJsonArray = photosJsonObject.getJSONArray("photo");
+        //get Array of values pairs from Object
+        JSONArray photoJsonArray = photosJSONObject.getJSONArray("photo");
 
         for (int i = 0; i < photoJsonArray.length(); i++) {
             JSONObject photoJsonObject = photoJsonArray.getJSONObject(i);
 
+            //place data in Model object GalleryItem
             GalleryItem item = new GalleryItem();
             item.setId(photoJsonObject.getString("id"));
             item.setCaption(photoJsonObject.getString("title"));
-            
+
             if (!photoJsonObject.has("url_s")) {
                 continue;
             }
-            
+
+            //set fields to each GalleryItem object
             item.setUrl(photoJsonObject.getString("url_s"));
             item.setOwner(photoJsonObject.getString("owner"));
-
-            //added location data to each item to display in the map
-            item.setLat(photoJsonObject.getDouble("latitude"));
-            item.setLon(photoJsonObject.getDouble("longitude"));
             items.add(item);
         }
     }
